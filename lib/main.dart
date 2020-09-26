@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_games/tictactoe/tictactoe_view.dart';
 
+import 'snake/snake_view.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -24,6 +26,7 @@ class MyApp extends StatelessWidget {
 class _NavigatorIntern extends StatelessWidget {
   final Map<String, Widget> screens = {
     'TicTacToe': TicTacToeView(),
+    'Snake': SnakeView(),
   };
 
   @override

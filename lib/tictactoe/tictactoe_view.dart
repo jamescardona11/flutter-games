@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_games/constants/constants.dart';
 
 class TicTacToeView extends StatefulWidget {
   @override
@@ -12,9 +12,6 @@ class _TicTacToeViewState extends State<TicTacToeView> {
   int ohScore = 0;
   int exScore = 0;
   int filledBoxes = 0;
-
-  static var myNewFontWhite =
-      GoogleFonts.pressStart2p(textStyle: TextStyle(color: Colors.white, letterSpacing: 3, fontSize: 15));
 
   @override
   Widget build(BuildContext context) {
