@@ -2,7 +2,10 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/components/component.dart';
+import 'package:pacman_game/components/coin_component.dart';
+import 'package:pacman_game/components/ghost_component.dart';
 import 'package:pacman_game/components/ground_component.dart';
+import 'package:pacman_game/components/player_component.dart';
 import 'package:pacman_game/components/wall_component.dart';
 import 'package:pacman_game/constants/constants.dart';
 import 'package:pacman_game/pacman.dart';
@@ -31,11 +34,23 @@ class GameMapController extends Component {
 
   final PacMan game;
   Map<Point, Component> _map;
+  PlayerComponent _player;
+  List<GhostComponent> _ghosts = List();
+  List<CoinComponent> _coins = List();
+  List<CoinComponent> _coinsToRemove = List();
+
+  set addCoinToRemove(CoinComponent coin) {
+    _coinsToRemove.add(coin);
+  }
 
   Map<Point, Component> get map => _map;
+  PlayerComponent get player => _player;
+  List<CoinComponent> get coins => _coins;
 
   GameMapController(this.game) {
     _initGameMap();
+    _addPlayer();
+    _addGhosts();
   }
 
   void _initGameMap() {
@@ -100,16 +115,108 @@ class GameMapController extends Component {
     this._map = gameMap;
   }
 
+  void _addPlayer() {
+    if (_map.isNotEmpty) {
+      _player = PlayerComponent(game);
+    }
+  }
+
+  void _addGhosts() {
+    if (_map.isNotEmpty) {
+      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.BLUE], game, 5, 3));
+      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.GREEN], game, 6, 3));
+      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.PINK], game, 7, 3));
+
+      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.LIGHT_BLUE], game, 11, 15));
+      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.LIGHT_GREEN], game, 12, 15));
+      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.RED], game, 13, 15));
+    }
+  }
+
   @override
   void render(Canvas c) {
     _map.forEach((position, component) {
       component.render(c);
     });
+    _player.render(c);
+
+    if (_coins.length > 0) {
+      _coins.forEach((coin) {
+        coin.render(c);
+      });
+    }
+
+    if (_ghosts.length > 0) {
+      _ghosts.forEach((ghost) {
+        ghost.render(c);
+      });
+    }
   }
 
   @override
   void update(double t) {
-    // TODO: implement update
+    _player.update(t);
+
+    _ghosts.forEach((ghost) {
+      ghost.update(t);
+    });
+
+    _coins.forEach((coin) {
+      coin.update(t);
+    });
+
+    // Remove coins consumed
+    if (_coinsToRemove.isNotEmpty) {
+      _coins.removeWhere((coin) => _coinsToRemove.contains(coin));
+      _coinsToRemove.clear();
+    }
+  }
+
+  void managePlayerMovement(String direction) {
+    switch (direction) {
+      case "LEFT":
+        _movePlayer(-1.0, 0.0);
+        break;
+      case "RIGHT":
+        _movePlayer(1.0, 0.0);
+        break;
+      case "UP":
+        _movePlayer(0.0, 1.0);
+        break;
+      case "DOWN":
+        _movePlayer(0.0, -1.0);
+        break;
+    }
+  }
+
+  void _movePlayer(double offsetX, double offsetY) {
+    if (_player.position == null) {
+      return;
+    }
+
+    Point targetPoint = Point((_player.position.x + offsetX), (_player.position.y + offsetY));
+
+    if (_map[targetPoint] is WallComponent) {
+      return;
+    }
+
+    if (targetPoint.x < 0) {
+      targetPoint = Point(_player.position.x + game.gameColumns - 1, _player.position.y);
+    }
+
+    if (targetPoint.x > game.gameColumns - 1) {
+      targetPoint = Point(0, _player.position.y);
+    }
+
+    if (targetPoint.y < 0) {
+      targetPoint = Point(_player.position.x, _player.position.y + game.gameRows - 1);
+    }
+
+    if (targetPoint.y > game.gameRows - 1) {
+      targetPoint = Point(_player.position.x, _player.position.y - game.gameColumns + 2);
+    }
+
+    _player.targetLocation = targetPoint;
   }
 }
 
@@ -170,24 +277,3 @@ extension MapTilesExtension on MapTiles {
         MapTiles.WALL_SIDE_BOTTOM_RIGHT: 'wall/wall_side_top_right.png',
       }[this];
 }
-
-/*extension TypeTaskX on TypeTask {
-  static TypeTask fromString(String value) => {
-        'pomo': TypeTask.pomo,
-        'rest': TypeTask.rest,
-        'longRest': TypeTask.longRest,
-      }[value];
-
-  String asString() => {
-        TypeTask.pomo: 'pomo',
-        TypeTask.rest: 'rest',
-        TypeTask.longRest: 'longRest',
-      }[this];
-
-  double asDouble() => {
-        TypeTask.pomo: 0.5,
-        TypeTask.rest: 0.2,
-        TypeTask.longRest: 0.3,
-      }[this];
-}
-*/
