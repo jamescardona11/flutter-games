@@ -41,6 +41,20 @@ class _SnakeViewState extends State<SnakeView> {
           children: [
             Expanded(
               child: GestureDetector(
+                onVerticalDragUpdate: (details) {
+                  if (direction != Direction.up && details.delta.dy > 0) {
+                    direction = Direction.down;
+                  } else if (direction != Direction.down && details.delta.dy < 0) {
+                    direction = Direction.up;
+                  }
+                },
+                onHorizontalDragUpdate: (details) {
+                  if (direction != Direction.left && details.delta.dx > 0) {
+                    direction = Direction.right;
+                  } else if (direction != Direction.right && details.delta.dx < 0) {
+                    direction = Direction.left;
+                  }
+                },
                 child: GridView.builder(
                   itemCount: numberOfSquares,
                   physics: NeverScrollableScrollPhysics(),
@@ -104,15 +118,12 @@ class _SnakeViewState extends State<SnakeView> {
       case TimerState.stop:
         _timer = Timer.periodic(const Duration(milliseconds: 300), (timer) {
           updateSnake();
-          /*
 
-      if(gameOver()){
-      timer.cancel();
-      _showGameOverScreen();
-
-      }
-
-       */
+          if (gameOver()) {
+            timer.cancel();
+            initDefault();
+            _showGameOverScreen();
+          }
         });
 
         setState(() {
@@ -130,28 +141,68 @@ class _SnakeViewState extends State<SnakeView> {
     }
   }
 
+  void initDefault() {
+    snakePosition.clear();
+    snakePosition.addAll(defaultPosition);
+  }
+
+  bool gameOver() {
+    for (int i = 0; i < snakePosition.length; ++i) {
+      int count = 0;
+      for (int j = 0; j < snakePosition.length; ++j) {
+        if (snakePosition[i] == snakePosition[j]) {
+          count += 1;
+        }
+        if (count == 2) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  void _showGameOverScreen() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // false = user must tap button, true = tap outside dialog
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('GAME OVER!!!'),
+          content: Text('SCORE: ${snakePosition.length}'),
+          actions: [
+            FlatButton(
+              child: Text('Play Again'),
+              onPressed: () {
+                startGame();
+                Navigator.of(dialogContext).pop(); // Dismiss alert dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void updateSnake() {
     setState(() {
       int addValue = 0;
 
       switch (direction) {
         case Direction.down:
-          addValue = snakePosition.last +
-              widthOfSquare +
-              (snakePosition.last > numberOfSquares - widthOfSquare ? -numberOfSquares : 0);
+          addValue = widthOfSquare + (snakePosition.last > numberOfSquares - widthOfSquare ? -numberOfSquares : 0);
           break;
         case Direction.up:
-          addValue = snakePosition.last - widthOfSquare + (snakePosition.last < widthOfSquare ? widthOfSquare : 0);
+          addValue = -widthOfSquare + (snakePosition.last < widthOfSquare ? numberOfSquares : 0);
           break;
         case Direction.left:
-          addValue = snakePosition.last - 1 + (snakePosition.last % widthOfSquare == 0 ? widthOfSquare : 0);
+          addValue = -1 + (snakePosition.last % widthOfSquare == 0 ? widthOfSquare : 0);
           break;
         case Direction.right:
-          addValue = snakePosition.last + 1 + ((snakePosition.last + 1) % widthOfSquare == 0 ? -widthOfSquare : 0);
+          addValue = 1 + ((snakePosition.last + 1) % widthOfSquare == 0 ? -widthOfSquare : 0);
           break;
       }
 
-      snakePosition.add(addValue);
+      snakePosition.add(snakePosition.last + addValue);
 
       if (snakePosition.last == food) {
         generateNewFood();
