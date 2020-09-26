@@ -1,4 +1,4 @@
-# flutter_games
+# classic_games
 
 A new Flutter application.
 

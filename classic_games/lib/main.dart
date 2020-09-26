@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_games/tictactoe/tictactoe_view.dart';
-
 import 'snake/snake_view.dart';
+import 'tictactoe/tictactoe_view.dart';
 
 void main() {
   runApp(MyApp());

@@ -1,5 +1,5 @@
+import 'package:classic_games/constants/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_games/constants/constants.dart';
 
 class TicTacToeView extends StatefulWidget {
   @override

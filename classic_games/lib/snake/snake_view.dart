@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:classic_games/constants/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_games/constants/constants.dart';
 
 final defaultPosition = [45, 65, 85, 105, 125];
 enum Direction { down, up, left, right }
