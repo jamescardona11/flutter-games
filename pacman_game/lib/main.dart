@@ -3,7 +3,7 @@ import 'package:flame/util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'game.dart';
+import 'game_view.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +43,7 @@ class MyApp extends StatelessWidget {
       title: 'PacMan Game',
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: MainSceneView(),
+        body: GameView(),
       ),
     );
   }
