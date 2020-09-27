@@ -42,9 +42,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PacMan Game',
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: GameView(),
-      ),
+      home: GameView(),
     );
   }
 }

@@ -18,56 +18,132 @@ class _GameViewState extends State<GameView> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Container(
-            width: size.width,
-            height: size.height,
-            margin: EdgeInsets.only(top: 25),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 16, right: 10, top: 16, bottom: 4),
-                  child: Row(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(right: 25),
-                        child: Text('Score', style: titleStyle),
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(top: 25.0),
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    child: StreamBuilder(
+                      stream: gamesStarted.stream,
+                      builder: (context, _) {
+                        String txtt = '0';
+                        if (game != null && game.gameMapController != null && game.gameMapController.player != null) {
+                          txtt = game.gameMapController.player.points.toString();
+                        }
+
+                        return Container(
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 16.0, right: 10.0, top: 16.0, bottom: 4.0),
+                            child: Row(
+                              children: <Widget>[
+                                Container(
+                                  margin: EdgeInsets.only(right: 25.0),
+                                  child: Text('Score', style: titleStyle),
+                                ),
+                                Text(txtt, style: titleStyle),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: StreamBuilder(
+                      stream: resetGame.stream,
+                      builder: (context, sss) {
+                        if (sss.hasData != null) {
+                          var newGame = PacMan(onStateChanged: () {
+                            gamesStarted.add(const Object());
+                          }, onPlayerDead: () {
+                            showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text("GameOver"),
+                                    actions: <Widget>[
+                                      FlatButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                          resetGame.add(const Object());
+                                        },
+                                        child: Text("Restart"),
+                                      ),
+                                    ],
+                                  );
+                                });
+                          });
+
+                          if (game != null) {
+                            newGame.resize(game.screenSize);
+                          }
+
+                          game = newGame;
+                          return game.widget;
+                        }
+
+                        return Container();
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 70,
+              child: Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        'Drag the screen in the direction you want to move',
+                        style: titleStyle.copyWith(fontSize: 10),
                       ),
-                      Text('0', style: titleStyle),
+                      SizedBox(
+                        height: 25.0,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.white.withAlpha(100),
+                            size: 24,
+                          ),
+                          Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.white.withAlpha(180),
+                            size: 24,
+                          ),
+                          Icon(
+                            Icons.arrow_back_ios,
+                            color: Colors.white.withAlpha(255),
+                            size: 24,
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: StreamBuilder(
-                    stream: resetGame.stream,
-                    builder: (context, _) {
-                      var newGame = PacMan(
-                        onStateChanged: () {
-                          gamesStarted.add(Object());
-                        },
-                        onPlayedDead: () {},
-                      );
-
-                      if (game != null) {
-                        newGame.resize(game.screenSize);
-                      }
-
-                      game = newGame;
-                      return game.widget;
-                    },
-                  ),
-                )
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
+  }
+
+  Future delay() async {
+    await Future.delayed(Duration(milliseconds: 2000));
   }
 
   @override

@@ -2,10 +2,10 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flame/components/component.dart';
 import 'package:flame/sprite.dart';
-import 'package:pacman_game/components/wall_component.dart';
 import '../pacman.dart';
+import 'wall_component.dart';
 
-class GhostComponent extends Component {
+class Ghost extends Component {
   final PacMan game;
   Sprite sprite;
   Rect ghostRect;
@@ -17,7 +17,7 @@ class GhostComponent extends Component {
 
   Rect get rect => ghostRect;
 
-  GhostComponent(String spritePath, this.game, double x, double y) {
+  Ghost(String spritePath, this.game, double x, double y) {
     sprite = Sprite(spritePath);
     position = Point(x, y);
     ghostRect = Rect.fromLTWH(x * game.tileWidth, y * game.tileHeight, game.tileWidth / 1.3, game.tileHeight / 1.3);
@@ -49,8 +49,7 @@ class GhostComponent extends Component {
         ghostRect = ghostRect.shift(toTarget);
         position = newPoint;
         elapsedTime = 0;
-      } while ((game.gameMapController.map[newPoint] is WallComponent ||
-              game.gameMapController.map[newPoint] is GhostComponent) ||
+      } while ((game.gameMapController.map[newPoint] is Wall || game.gameMapController.map[newPoint] is Ghost) ||
           (newPoint.x > game.gameColumns - 1 || newPoint.x < 0 || newPoint.y > game.gameRows - 1 || newPoint.y < 0));
     }
 

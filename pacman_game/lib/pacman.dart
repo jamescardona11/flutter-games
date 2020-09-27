@@ -1,10 +1,10 @@
 import 'dart:ui';
-
 import 'package:flame/flame.dart';
 import 'package:flame/game/base_game.dart';
 import 'package:flame/gestures.dart';
-import 'package:flutter/gestures.dart';
-import 'package:pacman_game/game_map_controller.dart';
+import 'package:flutter/material.dart';
+
+import 'game_map_controller.dart';
 
 class PacMan extends BaseGame with VerticalDragDetector, HorizontalDragDetector {
   Size screenSize;
@@ -12,13 +12,17 @@ class PacMan extends BaseGame with VerticalDragDetector, HorizontalDragDetector 
   final gameRows = 18;
   double tileWidth, tileHeight;
 
-  final VoidCallback onStateChanged;
-  final VoidCallback onPlayedDead;
+  VoidCallback onStateChanged;
+  VoidCallback onPlayerDead;
 
   GameMapController _gameMapController;
+
   GameMapController get gameMapController => _gameMapController;
 
-  PacMan({this.onStateChanged, this.onPlayedDead}) {
+  PacMan({
+    this.onStateChanged, // called when adding points
+    this.onPlayerDead,
+  }) {
     initialize();
   }
 
@@ -29,53 +33,70 @@ class PacMan extends BaseGame with VerticalDragDetector, HorizontalDragDetector 
 
   @override
   void render(Canvas canvas) {
-    if (this.screenSize == null) return;
+    if (this.screenSize == null) {
+      return;
+    }
 
     if (_gameMapController != null) _gameMapController.render(canvas);
 
     super.render(canvas);
   }
 
+  void die() {
+    _gameMapController.player.die();
+    onPlayerDead();
+    onStateChanged();
+  }
+
+  void addPoints() {
+    _gameMapController.player.addPoints = 15;
+    onStateChanged();
+  }
+
   @override
   void update(double t) {
     if (_gameMapController != null) _gameMapController.update(t);
+
     super.update(t);
   }
 
   @override
   void resize(Size size) {
+    if (size == null) return;
     screenSize = size;
-    tileHeight = screenSize.height / gameRows;
-    tileWidth = screenSize.width / gameColumns;
-    super.resize(size);
+    tileHeight = (screenSize.height / 1.5) / gameRows;
+    tileWidth = (screenSize.width) / gameColumns;
+
+    double mazeWidth = tileWidth * gameColumns;
+    double mazeHeight = tileHeight * gameRows;
+    Size mazeSize = Size(mazeWidth, mazeHeight);
+
+    super.resize(mazeSize);
   }
 
   @override
   void onVerticalDragEnd(DragEndDetails details) {
     double velocity = details.primaryVelocity;
+
     if (velocity < 0) {
-      //up
+      // up
+      _gameMapController.managePlayerMovement("DOWN");
     } else {
-      //down
+      // down
+      _gameMapController.managePlayerMovement("UP");
     }
   }
 
   @override
   void onHorizontalDragEnd(DragEndDetails details) {
     double velocity = details.primaryVelocity;
+
     if (velocity < 0) {
-      //left
+      // left
+      _gameMapController.managePlayerMovement("LEFT");
     } else {
-      //right
+      // right
+      _gameMapController.managePlayerMovement("RIGHT");
     }
-  }
-
-  void die() {
-    onPlayedDead();
-    onStateChanged();
-  }
-
-  void addPoints() {
-    onStateChanged();
   }
 }

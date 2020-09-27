@@ -4,12 +4,12 @@ import 'package:flame/sprite.dart';
 
 import '../pacman.dart';
 
-class WallComponent extends Component {
+class Wall extends Component {
   final PacMan game;
   Sprite sprite;
   Rect wallRect;
 
-  WallComponent(String spritePath, this.game, double x, double y) {
+  Wall(String spritePath, this.game, double x, double y) {
     sprite = Sprite(spritePath);
     wallRect = Rect.fromLTWH(x, y, game.tileWidth / 1.1, game.tileHeight / 1.1);
   }

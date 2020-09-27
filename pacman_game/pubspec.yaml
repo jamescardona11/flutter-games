@@ -21,5 +21,22 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/
-
+    - assets/images/wall/wall_down_close_left.png
+    - assets/images/wall/wall_down_close_right.png
+    - assets/images/wall/wall_down.png
+    - assets/images/wall/wall_side_bottom_left.png
+    - assets/images/wall/wall_side_bottom_right.png
+    - assets/images/wall/wall_side_top_left.png
+    - assets/images/wall/wall_side_top_right.png
+    - assets/images/wall/wall_up_close_bottom.png
+    - assets/images/wall/wall_up_close_top.png
+    - assets/images/wall/wall_up.png
+    - assets/images/ground.png
+    - assets/images/coin.png
+    - assets/images/pacman/pacman_idle.png
+    - assets/images/enemies/ghosts/ghost_blue.png
+    - assets/images/enemies/ghosts/ghost_green.png
+    - assets/images/enemies/ghosts/ghost_light_green.png
+    - assets/images/enemies/ghosts/ghost_light_blue.png
+    - assets/images/enemies/ghosts/ghost_pink.png
+    - assets/images/enemies/ghosts/ghost_red.png

@@ -1,14 +1,28 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:flame/components/component.dart';
-import 'package:pacman_game/components/coin_component.dart';
-import 'package:pacman_game/components/ghost_component.dart';
-import 'package:pacman_game/components/ground_component.dart';
-import 'package:pacman_game/components/player_component.dart';
-import 'package:pacman_game/components/wall_component.dart';
-import 'package:pacman_game/constants/constants.dart';
 import 'package:pacman_game/pacman.dart';
+
+import 'components/coin_component.dart';
+import 'components/ghost_component.dart';
+import 'components/ground_component.dart';
+import 'components/player_component.dart';
+import 'components/wall_component.dart';
+import 'constants/constants.dart';
+
+class MapTiles {
+  static const WALL_UP = 1;
+  static const WALL_DOWN = 4;
+  static const WALL_DOWN_CLOSE_RIGHT = 5;
+  static const WALL_DOWN_CLOSE_LEFT = 6;
+  static const WALL_UP_CLOSE_UP = 2;
+  static const WALL_UP_CLOSE_DOWN = 3;
+  static const WALL_SIDE_TOP_LEFT = 9;
+  static const WALL_SIDE_TOP_RIGHT = 10;
+  static const WALL_SIDE_BOTTOM_LEFT = 7;
+  static const WALL_SIDE_BOTTOM_RIGHT = 8;
+  static const GROUND = 0;
+}
 
 class GameMapController extends Component {
   List<List<int>> _mapDefinition = [
@@ -34,18 +48,18 @@ class GameMapController extends Component {
 
   final PacMan game;
   Map<Point, Component> _map;
-  PlayerComponent _player;
-  List<GhostComponent> _ghosts = List();
-  List<CoinComponent> _coins = List();
-  List<CoinComponent> _coinsToRemove = List();
+  Player _player;
+  List<Ghost> _ghosts = List();
+  List<Coin> _coins = List();
+  List<Coin> _coinsToRemove = List();
 
-  set addCoinToRemove(CoinComponent coin) {
+  set addCoinToRemove(Coin coin) {
     _coinsToRemove.add(coin);
   }
 
   Map<Point, Component> get map => _map;
-  PlayerComponent get player => _player;
-  List<CoinComponent> get coins => _coins;
+  Player get player => _player;
+  List<Coin> get coins => _coins;
 
   GameMapController(this.game) {
     _initGameMap();
@@ -55,81 +69,73 @@ class GameMapController extends Component {
 
   void _initGameMap() {
     var gameMap = Map<Point, Component>();
-
-    for (int y = 0; y < _mapDefinition.length; ++y) {
-      for (int x = 0; x < _mapDefinition.length; ++x) {
+    for (var y = 0; y < _mapDefinition.length; y++) {
+      for (var x = 0; x < _mapDefinition[0].length; x++) {
         double posX = game.tileWidth * x;
-        double posY = game.tileWidth * y;
+        double posY = game.tileHeight * y;
 
-        MapTiles casee = MapTilesExtension.fromInt(_mapDefinition[y][x]);
-        print('$casee');
-        print('${casee.asPath()}');
-        switch (casee) {
+        switch (_mapDefinition[y][x]) {
           case MapTiles.GROUND:
-            gameMap[Point(x, y)] = GroundComponent(game, posX, posY);
+            _coins.add(Coin(game, posX, posY));
+            gameMap[Point(x, y)] = Ground(game, posX, posY);
             break;
-
           case MapTiles.WALL_UP:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_UP.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_UP], game, posX, posY);
             break;
-
           case MapTiles.WALL_DOWN:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_DOWN.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_DOWN], game, posX, posY);
             break;
-
           case MapTiles.WALL_DOWN_CLOSE_RIGHT:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_DOWN_CLOSE_RIGHT.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_DOWN_CLOSE_RIGHT], game, posX, posY);
             break;
-
           case MapTiles.WALL_DOWN_CLOSE_LEFT:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_DOWN_CLOSE_LEFT.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_DOWN_CLOSE_LEFT], game, posX, posY);
             break;
-
           case MapTiles.WALL_UP_CLOSE_UP:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_UP_CLOSE_UP.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_UP_CLOSE_UP], game, posX, posY);
             break;
-
           case MapTiles.WALL_UP_CLOSE_DOWN:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_UP_CLOSE_DOWN.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_UP_CLOSE_DOWN], game, posX, posY);
             break;
-
           case MapTiles.WALL_SIDE_TOP_LEFT:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_SIDE_TOP_LEFT.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_SIDE_TOP_LEFT], game, posX, posY);
             break;
-
           case MapTiles.WALL_SIDE_TOP_RIGHT:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_SIDE_TOP_RIGHT.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_SIDE_TOP_RIGHT], game, posX, posY);
             break;
-
           case MapTiles.WALL_SIDE_BOTTOM_LEFT:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_SIDE_BOTTOM_LEFT.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_SIDE_BOTTOM_LEFT], game, posX, posY);
             break;
-
           case MapTiles.WALL_SIDE_BOTTOM_RIGHT:
-            gameMap[Point(x, y)] = WallComponent(MapTiles.WALL_SIDE_BOTTOM_RIGHT.asPath(), game, posX, posY);
+            gameMap[Point(x, y)] = Wall(WallConstants.wallsMap[MapTiles.WALL_SIDE_BOTTOM_RIGHT], game, posX, posY);
             break;
+          default:
+            gameMap[Point(x, y)] = Ground(game, posX, posY);
         }
       }
     }
-
     this._map = gameMap;
+  }
+
+  void removeCoin(Coin coin) {
+    _coins.remove(coin);
   }
 
   void _addPlayer() {
     if (_map.isNotEmpty) {
-      _player = PlayerComponent(game);
+      _player = Player(game);
     }
   }
 
   void _addGhosts() {
     if (_map.isNotEmpty) {
-      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.BLUE], game, 5, 3));
-      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.GREEN], game, 6, 3));
-      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.PINK], game, 7, 3));
+      _ghosts.add(Ghost(GhostConstants.ghostsMap[GhostTypes.BLUE], game, 5, 3));
+      _ghosts.add(Ghost(GhostConstants.ghostsMap[GhostTypes.GREEN], game, 6, 3));
+      _ghosts.add(Ghost(GhostConstants.ghostsMap[GhostTypes.PINK], game, 7, 3));
 
-      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.LIGHT_BLUE], game, 11, 15));
-      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.LIGHT_GREEN], game, 12, 15));
-      _ghosts.add(GhostComponent(GhostConstants.ghostsMap[GhostTypes.RED], game, 13, 15));
+      _ghosts.add(Ghost(GhostConstants.ghostsMap[GhostTypes.LIGHT_BLUE], game, 11, 15));
+      _ghosts.add(Ghost(GhostConstants.ghostsMap[GhostTypes.LIGHT_GREEN], game, 12, 15));
+      _ghosts.add(Ghost(GhostConstants.ghostsMap[GhostTypes.RED], game, 13, 15));
     }
   }
 
@@ -196,7 +202,7 @@ class GameMapController extends Component {
 
     Point targetPoint = Point((_player.position.x + offsetX), (_player.position.y + offsetY));
 
-    if (_map[targetPoint] is WallComponent) {
+    if (_map[targetPoint] is Wall) {
       return;
     }
 
@@ -218,62 +224,4 @@ class GameMapController extends Component {
 
     _player.targetLocation = targetPoint;
   }
-}
-
-// map of images
-enum MapTiles {
-  WALL_UP,
-  WALL_DOWN,
-  WALL_DOWN_CLOSE_RIGHT,
-  WALL_DOWN_CLOSE_LEFT,
-  WALL_UP_CLOSE_UP,
-  WALL_UP_CLOSE_DOWN,
-  WALL_SIDE_TOP_LEFT,
-  WALL_SIDE_TOP_RIGHT,
-  WALL_SIDE_BOTTOM_LEFT,
-  WALL_SIDE_BOTTOM_RIGHT,
-  GROUND,
-}
-
-extension MapTilesExtension on MapTiles {
-  static MapTiles fromInt(int value) => {
-        1: MapTiles.WALL_UP,
-        4: MapTiles.WALL_DOWN,
-        5: MapTiles.WALL_DOWN_CLOSE_RIGHT,
-        6: MapTiles.WALL_DOWN_CLOSE_LEFT,
-        2: MapTiles.WALL_UP_CLOSE_UP,
-        3: MapTiles.WALL_UP_CLOSE_DOWN,
-        9: MapTiles.WALL_SIDE_TOP_LEFT,
-        10: MapTiles.WALL_SIDE_TOP_RIGHT,
-        7: MapTiles.WALL_SIDE_BOTTOM_LEFT,
-        8: MapTiles.WALL_SIDE_BOTTOM_RIGHT,
-        0: MapTiles.GROUND,
-      }[value];
-
-  int asInt() => {
-        MapTiles.WALL_UP: 1,
-        MapTiles.WALL_DOWN: 4,
-        MapTiles.WALL_DOWN_CLOSE_RIGHT: 5,
-        MapTiles.WALL_DOWN_CLOSE_LEFT: 6,
-        MapTiles.WALL_UP_CLOSE_UP: 2,
-        MapTiles.WALL_UP_CLOSE_DOWN: 3,
-        MapTiles.WALL_SIDE_TOP_LEFT: 9,
-        MapTiles.WALL_SIDE_TOP_RIGHT: 10,
-        MapTiles.WALL_SIDE_BOTTOM_LEFT: 7,
-        MapTiles.WALL_SIDE_BOTTOM_RIGHT: 8,
-        MapTiles.GROUND: 0,
-      }[this];
-
-  String asPath() => {
-        MapTiles.WALL_UP: 'wall/wall_up.png',
-        MapTiles.WALL_DOWN: 'wall/wall_up_close_top.png',
-        MapTiles.WALL_DOWN_CLOSE_RIGHT: 'wall/wall_up_close_bottom.png',
-        MapTiles.WALL_DOWN_CLOSE_LEFT: 'wall/wall_down.png',
-        MapTiles.WALL_UP_CLOSE_UP: 'wall/wall_down_close_right.png',
-        MapTiles.WALL_UP_CLOSE_DOWN: 'wall/wall_down_close_left.png',
-        MapTiles.WALL_SIDE_TOP_LEFT: 'wall/wall_side_bottom_left.png',
-        MapTiles.WALL_SIDE_TOP_RIGHT: 'wall/wall_side_bottom_right.png',
-        MapTiles.WALL_SIDE_BOTTOM_LEFT: 'wall/wall_side_top_left.png',
-        MapTiles.WALL_SIDE_BOTTOM_RIGHT: 'wall/wall_side_top_right.png',
-      }[this];
 }

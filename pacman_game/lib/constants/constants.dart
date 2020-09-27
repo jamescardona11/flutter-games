@@ -3,6 +3,21 @@ import 'package:google_fonts/google_fonts.dart';
 
 final titleStyle = GoogleFonts.pressStart2p(textStyle: TextStyle(color: Colors.white, letterSpacing: 2, fontSize: 32));
 
+class WallConstants {
+  static const Map<int, String> wallsMap = {
+    1: 'wall/wall_up.png',
+    2: 'wall/wall_up_close_top.png',
+    3: 'wall/wall_up_close_bottom.png',
+    4: 'wall/wall_down.png',
+    5: 'wall/wall_down_close_right.png',
+    6: 'wall/wall_down_close_left.png',
+    7: 'wall/wall_side_bottom_left.png',
+    8: 'wall/wall_side_bottom_right.png',
+    9: 'wall/wall_side_top_left.png',
+    10: 'wall/wall_side_top_right.png',
+  };
+}
+
 enum GhostTypes { BLUE, LIGHT_BLUE, GREEN, LIGHT_GREEN, PINK, RED }
 
 class GhostConstants {

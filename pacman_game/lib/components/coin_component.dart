@@ -4,7 +4,7 @@ import 'package:flame/sprite.dart';
 
 import '../pacman.dart';
 
-class CoinComponent extends Component {
+class Coin extends Component {
   final PacMan game;
   Sprite sprite = Sprite('coin.png');
   Rect coinRect;
@@ -16,7 +16,7 @@ class CoinComponent extends Component {
 
   Rect get rect => coinRect;
 
-  CoinComponent(this.game, double x, double y) {
+  Coin(this.game, double x, double y) {
     coinRect = Rect.fromLTWH(
         x + (8 * game.tileWidth) / 20, y + (8 * game.tileHeight) / 20, game.tileWidth / 10, game.tileHeight / 10);
     _consumed = false;
